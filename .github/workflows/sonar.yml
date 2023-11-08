@@ -59,7 +59,7 @@ jobs:
       - name: Deploy to EKS
         run: kubectl apply -f deployment-service.yml
 
-      - name: Send a Slack Notification
+      - name: Send a Slack Notification to githubactions channel
         if: always()
         uses: act10ns/slack@v1
         with:
