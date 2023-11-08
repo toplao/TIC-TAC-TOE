@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to kubernetes
         run: kubectl delete -f deployment-service.yml
   
-      - name: Send a Slack Notification
+      - name: Send a Slack Notification to githubactions channel
         if: always()
         uses: act10ns/slack@v1
         with:
