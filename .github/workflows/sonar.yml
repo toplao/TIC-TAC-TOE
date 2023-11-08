@@ -24,16 +24,12 @@ jobs:
           
       - name: npm install dependency
         run: npm install
-        
-      - name: Install Trivy
-        run: |
-          # Scanning files
-          trivy fs . > trivyfs.txt
 
+      - name: Trivy file scan
+        run: trivy fs . > trivyfs.txt
 
-      - name: Docker build and push
+      - name: Docker Build and push
         run: |
-          # Run commands to build and push Docker images
           docker build -t tic-tac-toe .
           docker tag tic-tac-toe toplao/tic-tac-toe:latest
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
@@ -41,8 +37,18 @@ jobs:
         env:
           DOCKER_CLI_ACI: 1
 
-      - name: Trivy image scan
-        run: trivy image toplao/tic-tac-toe:latest > trivyimage.txt # Add Trivy scan command here
+      - name: Image scan
+        run: trivy image toplao/tic-tac-toe:latest > trivyimage.txt
 
+  deploy:
+   needs: build-analyze-scan   
+   runs-on: [self-hosted]
+   steps:
+      - name: docker pull image
+        run: docker pull toplao/tic-tac-toe:latest
 
-      
+      - name: Image scan
+        run: trivy image toplao/tic-tac-toe:latest > trivyimagedeploy.txt  
+  
+      - name: Deploy to container
+        run: docker run -d --name game -p 3000:3000 toplao/tic-tac-toe:latest
